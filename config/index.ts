@@ -19,9 +19,9 @@ function getEnvironmentConfig(environmentName: string) {
     publicAccess: environment.s3Config.publicAccess,
     indexFile: environment.s3Config.indexFile,
     errorFile: environment.s3Config.errorFile,
-    githubRepoOwner: config.githubRepoOwner,
-    githubRepoName: config.githubRepoName,
-    githubAccessToken: config.githubAccessTokenName,
+    githubRepoOwner: environment.githubRepoOwner,
+    githubRepoName: environment.githubRepoName,
+    githubAccessToken: environment.githubAccessTokenName,
   };
 }
 

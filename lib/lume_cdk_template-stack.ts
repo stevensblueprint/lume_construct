@@ -142,7 +142,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       owner: githubRepoOwner,
       repo: githubRepoName,
       branch: branch,
-      oauthToken: SecretValue.secretsManager(githubAccessToken),
+      oauthToken: cdk.SecretValue.secretsManager(props.githubAccessToken),
       output: sourceOutput,
     });
 

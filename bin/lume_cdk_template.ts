@@ -11,7 +11,7 @@ envConfigs.forEach((envConfig) => {
     console.log(`Deploying stack: ${stackName}`);
     new LumeCdkTemplateStack(app, stackName, {
       ...envConfig,
-      description: `CRM Admin Infra Stack for ${envConfig.environmentType}`,
+      description: `Lume Stack for ${envConfig.stackName}`,
     });
   }
 });
