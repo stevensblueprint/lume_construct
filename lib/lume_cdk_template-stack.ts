@@ -79,6 +79,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       distribution
     );
     this._outCloudfrontURL(distribution);
+    this._outCustomDomainName(distribution);
     this._outS3BucketURL(webBucket);
   }
 
@@ -323,5 +324,12 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       value: bucket.bucketWebsiteUrl,
       description: "s3 bucket website url",
     });
+  }
+
+  private _outCustomDomainName(distribution: Distribution) {
+    new CfnOutput(this, "custom-domain-name", {
+      value: distribution.domainName,
+      description: "custom domain name"
+    })
   }
 }
