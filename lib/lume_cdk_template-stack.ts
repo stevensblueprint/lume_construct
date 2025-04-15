@@ -1,4 +1,10 @@
-import { CfnOutput, Duration, RemovalPolicy, SecretValue } from "aws-cdk-lib";
+import { 
+  CfnOutput, 
+  Duration, 
+  RemovalPolicy, 
+  SecretValue, 
+  aws_route53_targets as targets 
+} from "aws-cdk-lib";
 import {
   Distribution,
   OriginAccessIdentity,
@@ -22,9 +28,12 @@ import {
 } from "aws-cdk-lib/aws-s3";
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { HostedZone } from "aws-cdk-lib/aws-route53";
+import { 
+  HostedZone, 
+  ARecord, 
+  RecordTarget 
+} from "aws-cdk-lib/aws-route53";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
-import { ARecord } from "aws-cdk-lib/aws-route53";
 
 interface LumeCdkTemplateStackProps extends cdk.StackProps {
   environmentType: string;
@@ -47,6 +56,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     /*------------------------lume deployment---------------------------*/
     const webBucket = this._createWebBucket(props);
     const distribution = this._createCloudFrontDistribution(webBucket, props);
+    const aRecord = this._createARecord(props, distribution);
 
     /*------------------------codepipeline/cicd--------------------------*/
     const { sourceOutput, sourceAction } = this._createSourceAction(props);
@@ -108,12 +118,11 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       originAccessIdentity: oai,
     });
 
-    // FIXME:
-    const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
-      domainName: props.domainName,
-    });
-
-    const certificate = Certificate.fromCertificateArn(this, 'DomainCertificate', props.certificateArn);
+    // This certificate must be created manually in AWS ACM
+    // with corresponding domain name i.e "sitbluperint.com"
+    const certificate = Certificate.fromCertificateArn(this, 'DomainCertificate', 
+      props.certificateArn
+    );
 
     const distribution = new Distribution(
       this,
@@ -145,6 +154,23 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     );
 
     return distribution;
+  }
+
+  private _createARecord(props: LumeCdkTemplateStackProps, distribution: Distribution) : ARecord {
+    // This Hosted Zone must be created manually in AWS Route 53 
+    // with corresponding domain name i.e "sitblueprint.com"
+    const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
+      domainName: props.domainName,
+    });
+
+    const domainARecord = new ARecord(this, 'AliasRecord', {
+      zone: hostedZone,
+      target: RecordTarget.fromAlias(
+        new targets.CloudFrontTarget(distribution)
+      ),
+    });
+
+    return domainARecord;
   }
 
   /*--------------------------codepipeline/cicd---------------------------*/
