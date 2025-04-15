@@ -170,6 +170,8 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       ),
     });
 
+    domainARecord.node.addDependency(distribution);
+
     return domainARecord;
   }
 
