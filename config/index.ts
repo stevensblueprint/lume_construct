@@ -23,7 +23,8 @@ function getEnvironmentConfig(environmentName: string) {
     githubRepoName: environment.githubRepoName,
     githubAccessToken: environment.githubAccessTokenName,
     domainName: environment.domainName,
-    subdomainName: environment.subdomainName
+    subdomainName: environment.subdomainName,
+    certificateArn: environment.certificateArn
   };
 }
 

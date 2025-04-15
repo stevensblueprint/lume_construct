@@ -22,6 +22,9 @@ import {
 } from "aws-cdk-lib/aws-s3";
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { HostedZone } from "aws-cdk-lib/aws-route53";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
+import { ARecord } from "aws-cdk-lib/aws-route53";
 
 interface LumeCdkTemplateStackProps extends cdk.StackProps {
   environmentType: string;
@@ -36,6 +39,7 @@ interface LumeCdkTemplateStackProps extends cdk.StackProps {
   githubAccessToken: string;
   domainName: string;
   subdomainName: string;
+  certificateArn: string;
 }
 export class LumeCdkTemplateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: LumeCdkTemplateStackProps) {
@@ -104,6 +108,13 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       originAccessIdentity: oai,
     });
 
+    // FIXME:
+    const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
+      domainName: props.domainName,
+    });
+
+    const certificate = Certificate.fromCertificateArn(this, 'DomainCertificate', props.certificateArn);
+
     const distribution = new Distribution(
       this,
       `${props.pipelineName}-deployment-distribution`,
@@ -128,6 +139,8 @@ export class LumeCdkTemplateStack extends cdk.Stack {
           },
         ],
         priceClass: PriceClass.PRICE_CLASS_100,
+        domainNames: [`${props.subdomainName}.${props.domainName}`],
+        certificate: certificate
       }
     );
 

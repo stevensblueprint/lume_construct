@@ -15,8 +15,9 @@ dev:
     publicAccess: false
     indexFile: index.html
     errorFile: index.html
-  domainName: sitblueprint.com
-  subdomainName: nj-appleseed
+  domainName:
+  subdomainName:
+  certificateArn: # ARN for Certiciate in ACM
 
 prod:
   deploy: true
@@ -33,5 +34,6 @@ prod:
     publicAccess: true
     indexFile: index.html
     errorFile: index.html
-  domainName: sitblueprint.com
-  subdomainName: nj-appleseed
+  domainName:
+  subdomainName:
+  certificateArn: # ARN for Certiciate in ACM
