@@ -22,6 +22,8 @@ function getEnvironmentConfig(environmentName: string) {
     githubRepoOwner: environment.githubRepoOwner,
     githubRepoName: environment.githubRepoName,
     githubAccessToken: environment.githubAccessTokenName,
+    domainName: environment.domainName,
+    subdomainName: environment.subdomainName
   };
 }
 

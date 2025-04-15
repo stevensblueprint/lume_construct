@@ -34,6 +34,8 @@ interface LumeCdkTemplateStackProps extends cdk.StackProps {
   githubRepoOwner: string;
   githubRepoName: string;
   githubAccessToken: string;
+  domainName: string;
+  subdomainName: string;
 }
 export class LumeCdkTemplateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: LumeCdkTemplateStackProps) {

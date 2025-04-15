@@ -15,6 +15,8 @@ dev:
     publicAccess: false
     indexFile: index.html
     errorFile: index.html
+  domainName: sitblueprint.com
+  subdomainName: nj-appleseed
 
 prod:
   deploy: true
@@ -31,3 +33,5 @@ prod:
     publicAccess: true
     indexFile: index.html
     errorFile: index.html
+  domainName: sitblueprint.com
+  subdomainName: nj-appleseed
