@@ -10,6 +10,10 @@ envConfigs.forEach((envConfig) => {
     const stackName = envConfig.stackName;
     console.log(`Deploying stack: ${stackName}`);
     new LumeCdkTemplateStack(app, stackName, {
+      env: {
+        account: envConfig.account,
+        region: envConfig.region
+      },
       ...envConfig,
       description: `Lume Stack for ${envConfig.stackName}`,
     });
