@@ -169,6 +169,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
 
     const domainARecord = new ARecord(this, 'AliasRecord', {
       zone: hostedZone,
+      recordName: props.subdomainName,
       target: RecordTarget.fromAlias(
         new targets.CloudFrontTarget(distribution)
       ),
