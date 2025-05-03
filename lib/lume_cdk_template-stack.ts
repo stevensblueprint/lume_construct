@@ -159,7 +159,6 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     return distribution;
   }
 
-  // FIXME: Should this contstruct just be created within the same function as the cloudfront distribution?
   private _createARecord(props: LumeCdkTemplateStackProps, distribution: Distribution) : ARecord {
     // This Hosted Zone must be created manually in AWS Route 53 
     // with corresponding domain name i.e "sitblueprint.com"
