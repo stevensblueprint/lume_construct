@@ -1,6 +1,8 @@
 stack:
-  name: "" #
+  name: # Stack name i.e "nj-appleseed"
 dev:
+  account: # AWS Account Number
+  region: # i.e "us-east-1"
   deploy: false
   environmentType: dev
   branchName: dev
@@ -15,11 +17,16 @@ dev:
     publicAccess: false
     indexFile: index.html
     errorFile: index.html
+  domainName: # i.e "sitblueprint.com"
+  subdomainName: # i.e "nj-appleseed"
+  certificateArn: # ARN for Certiciate in ACM
 
 prod:
-  deploy: true
-  environmentType: prod
-  branchName: main
+  account: # AWS Account Number
+  region: # i.e "us-east-1"
+  deploy: false
+  environmentType: dev
+  branchName: dev
   githubRepoOwner: # GitHub username repo owner
   githubRepoName: # GitHub repo name
   githubAccessTokenName: # GitHub access token name
@@ -28,6 +35,9 @@ prod:
   s3Config:
     bucketName: # Name of the bucket
     artifactsBucket: # Name of the bucket
-    publicAccess: true
+    publicAccess: false
     indexFile: index.html
     errorFile: index.html
+  domainName: # i.e "sitblueprint.com"
+  subdomainName: # i.e "nj-appleseed"
+  certificateArn: # ARN for Certiciate in ACM

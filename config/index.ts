@@ -9,6 +9,8 @@ const config = parse(readConfigFile);
 function getEnvironmentConfig(environmentName: string) {
   const environment = config[environmentName];
   return {
+    account: environment.account,
+    region: environment.region,
     isDeploy: environment.deploy,
     stackName: `${config.stack.name}`,
     environmentType: environment.environmentType,
@@ -22,6 +24,9 @@ function getEnvironmentConfig(environmentName: string) {
     githubRepoOwner: environment.githubRepoOwner,
     githubRepoName: environment.githubRepoName,
     githubAccessToken: environment.githubAccessTokenName,
+    domainName: environment.domainName,
+    subdomainName: environment.subdomainName,
+    certificateArn: environment.certificateArn
   };
 }
 
