@@ -1,0 +1,25 @@
+config:
+- nj-appleseed-pipeline:
+    url: https://discord.com/api/webhooks/1368398604707827833/0F6zPHVCZ5SjFbokCnwWkoc15b4k98ADHMYEsOutXCux7EciLnYCVa4zJCmAYWY-97ET
+    pipelineUrl: https://us-east-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/nj-appleseed-pipeline/view?region=us-east-1
+    method: POST
+    headers:
+      Content-Type: application/json
+- orservice:
+    url: https://discord.com/api/webhooks/1368398920979316797/O1DN6IB27xuWTLk5Si0fSMzzShuBjvllHclz9o6-Mg1tl-sU7NTARujw4eyUWmzs9E6a
+    pipelineUrl: https://us-east-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/orservice/view?region=us-east-1
+    method: POST
+    headers:
+      Content-Type: application/json
+- orservice_ui_pipeline:
+    url: https://discord.com/api/webhooks/1368398920979316797/O1DN6IB27xuWTLk5Si0fSMzzShuBjvllHclz9o6-Mg1tl-sU7NTARujw4eyUWmzs9E6a
+    pipelineUrl: https://us-east-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/orservice_ui_pipeline/view?region=us-east-1
+    method: POST
+    headers:
+      Content-Type: application/json
+- bluepint_admin:
+    url: https://discord.com/api/webhooks/1368412089986846741/j5GP63G9tLuNwA8hzKpVCUtc4u5fGToa711M3yNCwoijDPV380g4Aj0e9ARl4Q6CUsjS
+    pipelineUrl: https://us-east-1.console.aws.amazon.com/codesuite/codepipeline/pipelines/blueprint_admin/view?region=us-east-1
+    method: POST
+    headers:
+      Content-Type: application/json
