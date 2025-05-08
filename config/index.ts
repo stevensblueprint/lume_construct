@@ -26,8 +26,7 @@ function getEnvironmentConfig(environmentName: string) {
     githubAccessToken: environment.githubAccessTokenName,
     domainName: environment.domainName,
     subdomainName: environment.subdomainName,
-    certificateArn: environment.certificateArn,
-    discordWebhookURL: environment.discordWebhookURL,
+    certificateArn: environment.certificateArn
   };
 }
 

@@ -3,7 +3,7 @@ import {
   Duration, 
   RemovalPolicy, 
   SecretValue, 
-  aws_route53_targets 
+  aws_route53_targets as targets 
 } from "aws-cdk-lib";
 import {
   Distribution,
@@ -34,9 +34,6 @@ import {
   RecordTarget 
 } from "aws-cdk-lib/aws-route53";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
-import * as targets from "aws-cdk-lib/aws-events-targets"
-import * as lambda from "aws-cdk-lib/aws-lambda"
-import * as path from "path";
 
 interface LumeCdkTemplateStackProps extends cdk.StackProps {
   account: string;
@@ -54,7 +51,6 @@ interface LumeCdkTemplateStackProps extends cdk.StackProps {
   domainName: string;
   subdomainName: string;
   certificateArn: string;
-  discordWebhookURL: string;
 }
 export class LumeCdkTemplateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: LumeCdkTemplateStackProps) {
@@ -174,7 +170,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       zone: hostedZone,
       recordName: props.subdomainName,
       target: RecordTarget.fromAlias(
-        new aws_route53_targets.CloudFrontTarget(distribution)
+        new targets.CloudFrontTarget(distribution)
       ),
     });
 
@@ -317,26 +313,6 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     });
 
     codePipeline.node.addDependency(bucket, distribution);
-  }
-
-  private _addWebhook(pipeline: Pipeline, props: LumeCdkTemplateStackProps){
-    const webhookLambda = new lambda.Function(this, "WebhookLambda", {
-      runtime: lambda.Runtime.PYTHON_3_10,
-      code: lambda.Code.fromAsset(path.join(__dirname, "../functions/pipeline-lambda")),
-      handler: "src.handler",
-      environment: {
-        DISCORD_WEBHOOKS_URL: props.discordWebhookURL,
-        PIPELINE_NAME: pipeline.pipelineName,
-      }
-    })
-    
-    pipeline.onStateChange(
-      "WebhookEvent",
-      {
-        target: new targets.LambdaFunction(webhookLambda),
-        description: "Lambda function to describe state changes",
-      }
-    )
   }
 
   private _outCloudfrontURL(distribution: Distribution) {
