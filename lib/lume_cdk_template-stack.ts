@@ -37,6 +37,7 @@ import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import * as targets from "aws-cdk-lib/aws-events-targets"
 import * as lambda from "aws-cdk-lib/aws-lambda"
 import * as path from "path";
+import * as utils from './utils';
 
 interface LumeCdkTemplateStackProps extends cdk.StackProps {
   account: string;
@@ -303,7 +304,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     bucket: Bucket,
     distribution: Distribution
   ) {
-    const { pipelineName } = props;
+    const { pipelineName, discordWebhookURL } = props;
 
     const stages = [
       { stageName: "Source", actions: [sourceAction] },
@@ -317,6 +318,10 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     });
 
     codePipeline.node.addDependency(bucket, distribution);
+    if (!utils.isEmpty(discordWebhookURL)) {
+      console.log('Creating webhook')
+      this._addWebhook(codePipeline, props);
+    }
   }
 
   private _addWebhook(pipeline: Pipeline, props: LumeCdkTemplateStackProps){
