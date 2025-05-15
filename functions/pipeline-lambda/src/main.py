@@ -1,17 +1,12 @@
 from typing import Dict, Any
 import logging
 import requests
-from pathlib import Path
 import os
 
-from .config import load_yaml_config
+from .config import WebhookConfig
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-_BASE_DIR = Path(__file__).parent
-CONFIG_PATH = Path(os.environ.get("CONFIG_PATH", _BASE_DIR / "config.yaml"))
-PIPELINE_WEBHOOKS = load_yaml_config(CONFIG_PATH)
 
 STATE_COLORS = {
     "SUCCEEDED": 0x2ECC71,  # green
@@ -20,32 +15,34 @@ STATE_COLORS = {
     "STOPPING": 0xF39C12,  # orange
 }
 
+DISCORD_WEBHOOKS_URL = "DISCORD_WEBHOOKS_URL"
+PIPELINE_NAME = "PIPELINE_NAME"
+
+METHOD = "POST"
+HEADERS = {"Content-Type": "application/json"}
+
 
 def handler(event: Dict, _context: Any) -> Dict[str, Any]:
+    webhook_url = os.getenv(DISCORD_WEBHOOKS_URL)
+    pipeline_name = os.getenv(PIPELINE_NAME)
+
+    if not webhook_url or not pipeline_name:
+        logger.error(f'Pipeline name: {pipeline_name}, Webhook URL: {webhook_url}, in environment')
+        return {"status": "error", "message": "Missing environment variables."}
+
+    webhook_cfg = WebhookConfig(webhook_url, pipeline_name)
     detail = event.get("detail", {})
-    pipeline_name = detail.get("pipeline", "")
     state = detail.get("state", "")
 
-    if not pipeline_name or not state:
-        logger.error("Missing pipeline name or status in event.")
-        return {"status": "error", "message": "Missing pipeline name or status."}
-
-    webhook_cfg = PIPELINE_WEBHOOKS.get(pipeline_name)
-    if not webhook_cfg:
-        logger.error(f"No webhook configuration found for pipeline: {pipeline_name}")
-        return {
-            "status": "error",
-            "message": f"No webhook configuration found for pipeline: {pipeline_name}",
-        }
-    url = webhook_cfg.get("url")
-    method = webhook_cfg.get("method", "POST").upper()
-    headers = webhook_cfg.get("headers", {"Content-Type": "application/json"})
+    if not state:
+        logger.error("Missing status in event.")
+        return {"status": "error", "message": "Missing status in event body."}
 
     trigger = detail.get("execution-trigger", {})
     author = trigger.get("author-display-name") or trigger.get("author-id", "Unknown")
     commit_id = trigger.get("commit-id", "N/A")
     commit_message = trigger.get("commit-message", "N/A")
-    pipeline_url = webhook_cfg.get("pipelineUrl", "")
+    pipeline_url = webhook_cfg.get_pipeline_url()
     payload = {
         "username": "AWS Pipelines",
         "content": f"Pipeline **{pipeline_name}** status changed to **{state}**",
@@ -73,7 +70,7 @@ def handler(event: Dict, _context: Any) -> Dict[str, Any]:
         ],
     }
     try:
-        resp = requests.request(method, url, headers=headers, json=payload)
+        resp = requests.request(METHOD, webhook_cfg.url, headers=HEADERS, json=payload)
         resp.raise_for_status()
         logger.info("Sent webhook for %s → %s", pipeline_name, state)
         return {"status": "sent"}
