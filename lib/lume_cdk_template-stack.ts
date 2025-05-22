@@ -325,8 +325,21 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       return;
     const webhookLambda = new lambda.Function(this, "WebhookLambda", {
       runtime: lambda.Runtime.PYTHON_3_10,
-      code: lambda.Code.fromAsset(path.join(__dirname, "../functions/pipeline-lambda")),
-      handler: "src.handler",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../functions/pipeline-lambda"),
+        {
+          bundling: {
+            image: lambda.Runtime.PYTHON_3_10.bundlingImage,
+            command: [
+              "bash",
+              "-c",
+              "pip install -r src/requirements.txt -t /asset-output --platform manylinux2014_x86_64 --only-binary=:all: && cp -au . /asset-output",
+            ],
+          },
+        }
+      ),
+      handler: "src.main.handler",
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 128,
       environment: {
         DISCORD_WEBHOOKS_URL: props.discordWebhookURL,
         PIPELINE_NAME: pipeline.pipelineName,
@@ -337,7 +350,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       "WebhookEvent",
       {
         target: new targets.LambdaFunction(webhookLambda),
-        description: "Lambda function to describe state changes",
+        description: "Lambda function to send webhook notifications on pipeline state changes",
       }
     )
   }
