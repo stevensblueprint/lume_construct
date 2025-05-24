@@ -329,6 +329,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
         {
           bundling: {
             image: lambda.Runtime.PYTHON_3_10.bundlingImage,
+            user: 'root',
             command: [
               "bash",
               "-c",
