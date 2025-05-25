@@ -20,6 +20,7 @@ dev:
   domainName: # i.e "sitblueprint.com"
   subdomainName: # i.e "nj-appleseed"
   certificateArn: # ARN for Certiciate in ACM
+  discordWebhookURL: # Discord Webhook URL (optional)
 
 prod:
   account: # AWS Account Number
@@ -41,3 +42,4 @@ prod:
   domainName: # i.e "sitblueprint.com"
   subdomainName: # i.e "nj-appleseed"
   certificateArn: # ARN for Certiciate in ACM
+  discordWebhookURL: # Discord Webhook URL (optional)

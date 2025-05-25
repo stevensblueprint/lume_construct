@@ -3,7 +3,7 @@ import {
   Duration, 
   RemovalPolicy, 
   SecretValue, 
-  aws_route53_targets as targets 
+  aws_route53_targets 
 } from "aws-cdk-lib";
 import {
   Distribution,
@@ -34,6 +34,9 @@ import {
   RecordTarget 
 } from "aws-cdk-lib/aws-route53";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
+import * as targets from "aws-cdk-lib/aws-events-targets"
+import * as lambda from "aws-cdk-lib/aws-lambda"
+import * as path from "path";
 
 interface LumeCdkTemplateStackProps extends cdk.StackProps {
   account: string;
@@ -51,6 +54,7 @@ interface LumeCdkTemplateStackProps extends cdk.StackProps {
   domainName: string;
   subdomainName: string;
   certificateArn: string;
+  discordWebhookURL: string;
 }
 export class LumeCdkTemplateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: LumeCdkTemplateStackProps) {
@@ -170,7 +174,7 @@ export class LumeCdkTemplateStack extends cdk.Stack {
       zone: hostedZone,
       recordName: props.subdomainName,
       target: RecordTarget.fromAlias(
-        new targets.CloudFrontTarget(distribution)
+        new aws_route53_targets.CloudFrontTarget(distribution)
       ),
     });
 
@@ -313,6 +317,43 @@ export class LumeCdkTemplateStack extends cdk.Stack {
     });
 
     codePipeline.node.addDependency(bucket, distribution);
+    this._addWebhook(codePipeline, props);
+  }
+
+  private _addWebhook(pipeline: Pipeline, props: LumeCdkTemplateStackProps){
+    if (props.discordWebhookURL === "" || props.discordWebhookURL === undefined)
+      return;
+    const webhookLambda = new lambda.Function(this, "WebhookLambda", {
+      runtime: lambda.Runtime.PYTHON_3_10,
+      code: lambda.Code.fromAsset(path.join(__dirname, "../functions/pipeline-lambda"),
+        {
+          bundling: {
+            image: lambda.Runtime.PYTHON_3_10.bundlingImage,
+            user: 'root',
+            command: [
+              "bash",
+              "-c",
+              "pip install -r src/requirements.txt -t /asset-output --platform manylinux2014_x86_64 --only-binary=:all: && cp -au . /asset-output",
+            ],
+          },
+        }
+      ),
+      handler: "src.main.handler",
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 128,
+      environment: {
+        DISCORD_WEBHOOKS_URL: props.discordWebhookURL,
+        PIPELINE_NAME: pipeline.pipelineName,
+      }
+    })
+    
+    pipeline.onStateChange(
+      "WebhookEvent",
+      {
+        target: new targets.LambdaFunction(webhookLambda),
+        description: "Lambda function to send webhook notifications on pipeline state changes",
+      }
+    )
   }
 
   private _outCloudfrontURL(distribution: Distribution) {
